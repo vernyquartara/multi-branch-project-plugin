@@ -24,7 +24,9 @@
 package com.github.mjdetullio.jenkins.plugins.multibranch;
 
 import antlr.ANTLRException;
+
 import com.google.common.collect.ImmutableMap;
+
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
@@ -79,6 +81,7 @@ import jenkins.scm.api.SCMSourceOwner;
 import jenkins.scm.impl.SingleSCMSource;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.bytecode.AdaptField;
 import org.kohsuke.stapler.HttpRedirect;
@@ -91,6 +94,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -113,6 +117,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
@@ -998,6 +1004,11 @@ public abstract class AbstractMultiBranchProject<P extends AbstractProject<P, B>
 		Set<String> newBranches = new HashSet<String>();
 		for (SCMHead head : heads) {
 			String branchName = head.getName();
+			Pattern pattern = Pattern.compile("branches/(.+)/.+");
+			Matcher matcher = pattern.matcher(branchName);
+			if (matcher.find()) {
+				branchName = matcher.group(1);
+			}
 			branches.put(branchName, head);
 
 			if (!subProjects.containsKey(branchName)) {
